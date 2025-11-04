@@ -20,6 +20,7 @@ export default class TaskController {
     console.log('[Controller] Queueing update job:', jobData);
     const job = await tasksQueue.add('update', jobData);
     return { message: 'Task update has been queued', jobId: job.id };
+
   }
 
   @Delete('/:id')

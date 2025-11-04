@@ -1,7 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import { redis } from '../redis.js';
-import {TaskJobData} from "../types/task.type";
 import taskJob from "../jobs/task.job";
+import {TaskJobData} from "../../types/task.type";
 
 export default function listenToTasks() {
   const worker = new Worker<TaskJobData>(

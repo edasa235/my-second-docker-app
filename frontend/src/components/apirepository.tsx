@@ -1,6 +1,6 @@
 
 
-const host = import.meta.env.VITE_API_host;
+const host = "http://localhost:3000";
 
 export class Apirepository {
 

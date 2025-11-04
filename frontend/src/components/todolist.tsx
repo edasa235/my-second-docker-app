@@ -1,40 +1,75 @@
-import { useEffect, useState } from "react";
-import { getalltasks } from "./apicalls.tsx";
-import type {TaskDTO} from "../../type.ts";
+import {useTasks} from "./usetasks.tsx";
+import {useEffect} from "react";
+
+
 const TodoList = () => {
-    const [todoList, setTodoList] = useState<TaskDTO[]>([]);
-    const [loading, setLoading] = useState(true);
+  const {
+    tasks,
+    loading,
+    error,
+    fetchTasks,
+    createTaskHandler,
+    updateTaskHandler,
+    deleteTaskHandler,
+  } = useTasks();
 
-    useEffect(() => {
-        async function fetchTasks() {
-            try {
-                const tasks: TaskDTO[] = await getalltasks();
-                setTodoList(tasks);
-            } catch (error) {
-                console.error("Failed to fetch tasks:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-        fetchTasks();
-    }, []);
+  if (loading) return <p>Loading tasks...</p>;
+  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
 
-    if (loading) return <p>Loading tasks...</p>;
+  return (
+    <div>
+      <h2>Task List</h2>
 
-    return (
-        <div>
-            <h2>task List</h2>
-            <ul>
-                {todoList.map((task, index) => (
-                    <li key={index}>
-                        <strong>{task.title}</strong>
-                        {task.description && <p>{task.description}</p>}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const form = e.currentTarget;
+          const title = (form.elements.namedItem("title") as HTMLInputElement).value;
+          const description = (form.elements.namedItem("description") as HTMLInputElement).value;
+
+          await createTaskHandler({ title, description });
+          form.reset();
+        }}
+        style={{ marginBottom: "1rem" }}
+      >
+        <input name="title" placeholder="Title" required />
+        <input name="description" placeholder="Description" />
+        <button type="submit">Add Task</button>
+      </form>
+
+      {/* ✅ Task list */}
+      <ul>
+        {tasks.map((task, index) => {
+          if (task.type === "create" || task.type === "update") {
+            return (
+              <li key={("id" in task && task.id) || index}>
+                <strong>{task.body.title}</strong>
+                {task.body.description && <p>{task.body.description}</p>}
+                <button
+                  onClick={() =>
+                    updateTaskHandler(
+                      "id" in task ? task.id : "",
+                      { title: task.body.title + " (Updated)" }
+                    )
+                  }
+                >
+                  Update
+                </button>
+                {"id" in task && (
+                  <button onClick={() => deleteTaskHandler(task.id!)}>Delete</button>
+                )}
+              </li>
+            );
+          }
+          return null;
+        })}
+      </ul>
+    </div>
+  );
 };
 
 export default TodoList;
