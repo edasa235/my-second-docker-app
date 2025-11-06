@@ -1,72 +1,65 @@
-import {useTasks} from "./usetasks.tsx";
-import {useEffect} from "react";
-
+import React, { useState } from "react";
+import { useTasks } from "./usetasks.tsx";
 
 const TodoList = () => {
-  const {
-    tasks,
-    loading,
-    error,
-    fetchTasks,
-    createTaskHandler,
-    updateTaskHandler,
-    deleteTaskHandler,
-  } = useTasks();
+  const { tasks, loading, error, createTaskHandler, updateTaskHandler, deleteTaskHandler } = useTasks();
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const t = title.trim();
+    if (!t) return;
+    await createTaskHandler({ title: t, description: description.trim() });
+    setTitle("");
+    setDescription("");
+  };
 
   return (
     <div>
       <h2>Task List</h2>
 
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const title = (form.elements.namedItem("title") as HTMLInputElement).value;
-          const description = (form.elements.namedItem("description") as HTMLInputElement).value;
-
-          await createTaskHandler({ title, description });
-          form.reset();
-        }}
-        style={{ marginBottom: "1rem" }}
-      >
-        <input name="title" placeholder="Title" required />
-        <input name="description" placeholder="Description" />
+      <form onSubmit={onSubmit} style={{ marginBottom: "1rem" }}>
+        <input
+          name="title"
+          placeholder="Title"
+          required
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <input
+          name="description"
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
         <button type="submit">Add Task</button>
       </form>
 
-      {/* ✅ Task list */}
       <ul>
-        {tasks.map((task, index) => {
-          if (task.type === "create" || task.type === "update") {
+        {tasks
+          .filter((t) => t.type === "create" || t.type === "update")
+          .map((taskItem) => {
+            const key = taskItem.id;
             return (
-              <li key={("id" in task && task.id) || index}>
-                <strong>{task.body.title}</strong>
-                {task.body.description && <p>{task.body.description}</p>}
+              <li key={key}>
+                <strong>{taskItem.body.title}</strong>
+                {taskItem.body.description && <p>{taskItem.body.description}</p>}
                 <button
                   onClick={() =>
-                    updateTaskHandler(
-                      "id" in task ? task.id : "",
-                      { title: task.body.title + " (Updated)" }
-                    )
+                    updateTaskHandler(taskItem.id, { title: taskItem.body.title + " (Updated)" })
                   }
                 >
                   Update
                 </button>
-                {"id" in task && (
-                  <button onClick={() => deleteTaskHandler(task.id!)}>Delete</button>
-                )}
+                <button onClick={() => deleteTaskHandler(taskItem.id)}>Delete</button>
               </li>
             );
-          }
-          return null;
-        })}
+          })}
       </ul>
     </div>
   );

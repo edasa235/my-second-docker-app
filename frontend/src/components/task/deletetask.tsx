@@ -1,4 +1,4 @@
-import {deletetask} from "./apicalls.tsx";
+import {deletetask} from "../apicalls.tsx";
 import React from "react";
 
 interface DeleteTasksProps {

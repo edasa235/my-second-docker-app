@@ -1,9 +1,8 @@
-import {TasksProvider} from "../../components/TasksContext.tsx";
 import TodoList from "../../components/todolist.tsx";
+import {TasksProvider} from "../../providers/tasks/tasks.provider.tsx";
 
 export default function Home() {
-  // TODO: implement tasks page
-  // TODO: use TasksProvider... how?
+
 
   return (
     <div className={"container"}>

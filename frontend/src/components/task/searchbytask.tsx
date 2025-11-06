@@ -1,4 +1,4 @@
-import {gettaskbyid} from "./apicalls.tsx";
+import {gettaskbyid} from "../apicalls.tsx";
 import {useState} from "react";
 
 
