@@ -1,7 +1,8 @@
+import config from "../config.json";
 
+const host = config.API_HOST;
 
-const host = "http://localhost:3000";
-
+console.log("API Host:", host);
 export class Apirepository {
 
     async getTasks() {

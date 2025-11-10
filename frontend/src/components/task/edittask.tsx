@@ -15,12 +15,8 @@ export const useUpdateTask = (
     );
 
     try {
-      const updated = await updatetask(id, updates);
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === id && "body" in t ? { ...t, body: { ...t.body, ...updated }, type: "update" } : t
-        )
-      );
+      await updatetask(id, updates);
+     
     } catch (err: any) {
       setTasks(snapshot);
       setError(err?.message || "Failed to update task");
