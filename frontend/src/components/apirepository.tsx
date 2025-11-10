@@ -33,7 +33,7 @@ export class Apirepository {
         const data = await response.json();
         return data;
     }
-    async createTask(task: { title: string; description: string }) {
+    async createTask(task: { title: string; description?: string }) {
         const response = await fetch(`${host}/api/tasks`, {
             method: 'POST',
             headers: {

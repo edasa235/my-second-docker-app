@@ -1,51 +1,31 @@
-import { useState } from "react";
-import {useTasksContext} from "../../providers/tasks/tasks.context.tsx";
+import type { TaskJobData } from "../../types/task";
+import {updatetask} from "../apicalls.tsx";
 
-interface EditTaskProps {
-  id: string;
-  title?: string;
-  description?: string;
-  onedit?: () => void;
-}
+export const useUpdateTask = (
+  tasks: TaskJobData[],
+  setTasks: React.Dispatch<React.SetStateAction<TaskJobData[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  const updateTaskHandler = async (id: string, updates: { title?: string; description?: string }) => {
+    const snapshot = [...tasks];
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id && "body" in t ? { ...t, body: { ...t.body, ...updates } } : t
+      )
+    );
 
-const EditTask = ({ id, title: initialTitle = "", description: initialDescription = "", onedit }: EditTaskProps) => {
-  const [title, setTitle] = useState(initialTitle);
-  const [description, setDescription] = useState(initialDescription);
-  const [submitting, setSubmitting] = useState(false);
-  const { updateTaskHandler } = useTasksContext();
-
-  const handleedit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const payload: { title?: string; description?: string } = {};
     try {
-      setSubmitting(true);
-      await updateTaskHandler(id, payload);
-      onedit?.();
-    } catch {
-      console.error("Failed to edit task");
-    } finally {
-      setSubmitting(false);
+      const updated = await updatetask(id, updates);
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === id && "body" in t ? { ...t, body: { ...t.body, ...updated }, type: "update" } : t
+        )
+      );
+    } catch (err: any) {
+      setTasks(snapshot);
+      setError(err?.message || "Failed to update task");
     }
   };
 
-  return (
-    <div>
-      <h2>Edit Task</h2>
-      <form onSubmit={handleedit}>
-        <label>
-          Title:
-          <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
-        </label>
-        <br />
-        <label>
-          Description:
-          <textarea value={description} onChange={(event) => setDescription(event.target.value)} />
-        </label>
-        <br />
-        <button type="submit" disabled={submitting}>Save Changes</button>
-      </form>
-    </div>
-  );
+  return { updateTaskHandler };
 };
-
-export default EditTask;

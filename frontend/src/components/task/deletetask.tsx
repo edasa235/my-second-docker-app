@@ -1,39 +1,20 @@
 import {deletetask} from "../apicalls.tsx";
-import React from "react";
+import type {TaskJobData} from "../../types/task.ts";
+export const useDeleteTask = (
+  tasks: TaskJobData[],
+  setTasks: React.Dispatch<React.SetStateAction<TaskJobData[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  const deleteTaskHandler = async (id: string) => {
+    const snapshot = [...tasks];
+    setTasks((prev) => prev.filter((t) => t.id !== id));
 
-interface DeleteTasksProps {
-    id: string;
-    ondelete?: () => void;
+    try {
+      await deletetask(id);
+    } catch (err: any) {
+      setTasks(snapshot);
+      setError(err?.message || "Failed to delete task");
+    }
+  };
+  return { deleteTaskHandler };
 }
-const deletetasks = ({ id, ondelete }: DeleteTasksProps) => {
-
-    const [deleting, setDeleting] = React.useState(false);
-    const handleDelete = async (taskId: string) => {
-        try {
-            setDeleting(true);
-            await deletetask(taskId);
-            console.log(`Task with id ${taskId} deleted successfully.`);
-            ondelete?.();
-        } catch (error) {
-            console.error(`Failed to delete task with id ${taskId}:`, error);
-        }
-        finally {
-            setDeleting(false);
-        }
-    };
-    return (
-        <button
-            disabled={!id || deleting}
-
-    onClick={() => {
-                if (id && window.confirm("Are you sure you want to delete this task?")) {
-                   void handleDelete(id);
-                }
-            }}
-        >
-            {deleting ? "Deleting..." : "Delete"}
-
-        </button>
-    );
-};
-export default deletetasks;

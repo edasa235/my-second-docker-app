@@ -1,43 +1,30 @@
-import { useState } from "react";
-import {useTasksContext} from "../../providers/tasks/tasks.context.tsx";
+import type {TaskJobData} from "../../types/task.ts";
+import {createtask} from "../apicalls.tsx";
+import {normalizeTask} from "./normalizetask.ts";
 
-interface CreateTaskProps { onCreate?: () => void; }
+export const useCreateTask = (
+  setTasks: React.Dispatch<React.SetStateAction<TaskJobData[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  fetchTasks: () => Promise<void>
+) => {
+  const createTaskHandler = async (newTask: { title: string; description?: string }) => {
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: TaskJobData = { type: "create", id: tempId, body: newTask };
+    setTasks((prev) => [optimistic, ...prev]);
 
-const CreateTask = ({ onCreate }: CreateTaskProps) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const { createTaskHandler } = useTasksContext();
-
-  const handleCreate = async (event: React.FormEvent) => {
-    event.preventDefault();
     try {
-      await createTaskHandler({ title: title.trim(), description: description.trim() || "" });
-      setTitle("");
-      setDescription("");
-      onCreate?.();
-    } catch {
-      console.error("Failed to create task");
+      const created = await createtask(newTask);
+      if (created?.id || created?._id) {
+        const normalized = normalizeTask(created);
+        setTasks((prev) => prev.map((t) => (t.id === tempId ? normalized : t)));
+      } else {
+        await fetchTasks();
+      }
+    } catch (err: any) {
+      setTasks((prev) => prev.filter((t) => t.id !== tempId));
+      setError(err?.message || "Failed to create task");
     }
   };
 
-  return (
-    <div>
-      <h2>Create Task</h2>
-      <form onSubmit={handleCreate}>
-        <label>
-          Title:
-          <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} required />
-        </label>
-        <br />
-        <label>
-          Description:
-          <textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="(optional)" />
-        </label>
-        <br />
-        <button type="submit">Create Task</button>
-      </form>
-    </div>
-  );
+  return { createTaskHandler };
 };
-
-export default CreateTask;

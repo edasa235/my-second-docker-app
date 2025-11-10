@@ -1,68 +1,90 @@
-import React, { useState } from "react";
-import { useTasks } from "./usetasks.tsx";
+import { useState } from "react";
+import {useTasks} from "./usetasks.tsx";
 
-const TodoList = () => {
-  const { tasks, loading, error, createTaskHandler, updateTaskHandler, deleteTaskHandler } = useTasks();
+export const TodoList = () => {
+  const {
+    tasks,
+    loading,
+    error,
+    createTaskHandler,
+    updateTaskHandler,
+    deleteTaskHandler,
+  } = useTasks();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
 
-  if (loading) return <p>Loading tasks...</p>;
-  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const t = title.trim();
-    if (!t) return;
-    await createTaskHandler({ title: t, description: description.trim() });
-    setTitle("");
-    setDescription("");
+  const handleAdd = async () => {
+    if (!newTitle.trim()) return;
+    await createTaskHandler({ title: newTitle, description: newDescription });
+    setNewTitle("");
+    setNewDescription("");
   };
 
   return (
-    <div>
-      <h2>Task List</h2>
+    <div className="p-4 max-w-md mx-auto">
+      <h1 className="text-2xl font-semibold mb-4">📝 LUCAS SKIBIDI</h1>
 
-      <form onSubmit={onSubmit} style={{ marginBottom: "1rem" }}>
+      {/* Input for creating a new task */}
+      <div className="flex flex-col gap-2 mb-4">
         <input
-          name="title"
-          placeholder="Title"
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          type="text"
+          placeholder="Task title"
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+          className="border p-2 rounded"
         />
         <input
-          name="description"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          type="text"
+          placeholder="Task description"
+          value={newDescription}
+          onChange={(e) => setNewDescription(e.target.value)}
+          className="border p-2 rounded"
         />
-        <button type="submit">Add Task</button>
-      </form>
+        <button
+          onClick={handleAdd}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          disabled={loading}
+        >
+          Add Task
+        </button>
+      </div>
 
-      <ul>
-        {tasks
-          .filter((t) => t.type === "create" || t.type === "update")
-          .map((taskItem) => {
-            const key = taskItem.id;
-            return (
-              <li key={key}>
-                <strong>{taskItem.body.title}</strong>
-                {taskItem.body.description && <p>{taskItem.body.description}</p>}
-                <button
-                  onClick={() =>
-                    updateTaskHandler(taskItem.id, { title: taskItem.body.title + " (Updated)" })
-                  }
-                >
-                  Update
-                </button>
-                <button onClick={() => deleteTaskHandler(taskItem.id)}>Delete</button>
-              </li>
-            );
-          })}
+      {loading && <p>Loading tasks...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {/* Task list */}
+      <ul className="space-y-3">
+        {tasks.map((task) => (
+          <li
+            key={task.id}
+            className="border p-3 rounded flex justify-between items-center"
+          >
+            <div>
+              <input
+                type="text"
+                value={task.body.title}
+                onChange={(e) =>
+                  updateTaskHandler(task.id, { title: e.target.value })
+                }
+                className="font-semibold border-b focus:outline-none"
+              />
+              {task.body.description && (
+                <p className="text-sm text-gray-600">
+                  {task.body.description}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => deleteTaskHandler(task.id)}
+              className="text-red-500 hover:text-red-700"
+            >
+              ✕
+            </button>
+          </li>
+        ))}
       </ul>
     </div>
   );
 };
-
 export default TodoList;
