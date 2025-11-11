@@ -1,7 +1,8 @@
+import config from "../config.json";
 
+const host = config.API_HOST;
 
-const host = import.meta.env.VITE_API_host;
-
+console.log("API Host:", host);
 export class Apirepository {
 
     async getTasks() {
@@ -33,7 +34,7 @@ export class Apirepository {
         const data = await response.json();
         return data;
     }
-    async createTask(task: { title: string; description: string }) {
+    async createTask(task: { title: string; description?: string }) {
         const response = await fetch(`${host}/api/tasks`, {
             method: 'POST',
             headers: {

@@ -1,4 +1,4 @@
-import {gettaskbyid} from "./apicalls.tsx";
+import {gettaskbyid} from "../apicalls.tsx";
 import {useState} from "react";
 
 
@@ -25,20 +25,6 @@ const searchbytask = ({ query: initialQuery = "", onSearchResults }: Searchbytas
             setSearching(false);
         }
     };
-    return (
-        <div>
-            <h2>Search Tasks</h2>
-            <form onSubmit={handleSearch}>
-                <label>
-                    Query:
-                    <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}/>
-                </label>
-                <br/>
-                <button type="submit" disabled={searching}>
-                    {searching ? "Searching..." : "Search"}
-                </button>
-            </form>
-        </div>
-    );
+
 }
 export default searchbytask;
