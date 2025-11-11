@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { useTasks } from "./usetasks.tsx";
+import type { TaskJobData, TaskDTO } from "../types/task";
+
+const hasBody = (task: TaskJobData): task is Extract<TaskJobData, { body: TaskDTO }> =>
+  task.type === "create" || task.type === "update";
 
 export const TodoList = () => {
   const {
@@ -14,7 +18,7 @@ export const TodoList = () => {
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
 
-  // For edit mode
+  // Edit mode
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ title: "", description: "" });
 
@@ -43,7 +47,7 @@ export const TodoList = () => {
   return (
     <div
       style={{
-        padding: "24px",
+        padding: "20px",
         maxWidth: "480px",
         margin: "0 auto",
         fontFamily: "system-ui, sans-serif",
@@ -51,24 +55,17 @@ export const TodoList = () => {
     >
       <h1
         style={{
-          fontSize: "28px",
+          fontSize: "26px",
           fontWeight: "700",
-          marginBottom: "24px",
+          marginBottom: "20px",
           textAlign: "center",
         }}
       >
-        📝 task List
+        📝 Task List
       </h1>
 
       {/* Add new task */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-          marginBottom: "24px",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
         <input
           type="text"
           placeholder="Task title"
@@ -122,13 +119,12 @@ export const TodoList = () => {
           padding: 0,
           display: "flex",
           flexDirection: "column",
-          gap: "16px",
+          gap: "14px",
         }}
       >
-        {tasks.map((task) => {
+        {tasks.filter(hasBody).map((task) => {
           const isEditing = editingId === task.id;
-          const title = task?.body?.title ?? "";
-          const description = task?.body?.description ?? "";
+          const { title, description } = task.body;
 
           return (
             <li
@@ -148,14 +144,12 @@ export const TodoList = () => {
                   <input
                     type="text"
                     value={editValues.title}
-                    onChange={(e) =>
-                      setEditValues((prev) => ({ ...prev, title: e.target.value }))
-                    }
+                    onChange={(e) => setEditValues((prev) => ({ ...prev, title: e.target.value }))}
                     placeholder="Task title"
                     style={{
                       border: "1px solid #ccc",
                       borderRadius: "4px",
-                      padding: "6px",
+                      padding: "8px",
                       fontSize: "16px",
                       marginBottom: "8px",
                     }}
@@ -173,7 +167,7 @@ export const TodoList = () => {
                     style={{
                       border: "1px solid #ccc",
                       borderRadius: "4px",
-                      padding: "6px",
+                      padding: "8px",
                       fontSize: "14px",
                       color: "#555",
                       marginBottom: "12px",
@@ -216,7 +210,7 @@ export const TodoList = () => {
                     style={{
                       fontSize: "18px",
                       fontWeight: "600",
-                      margin: "0 0 4px 0",
+                      margin: "0 0 6px 0",
                       color: "#222",
                     }}
                   >
@@ -227,14 +221,14 @@ export const TodoList = () => {
                       fontSize: "14px",
                       color: "#777",
                       margin: "0 0 12px 0",
-                      whiteSpace: "pre-wrap",
+                      wordWrap: "break-word",
                     }}
                   >
                     {description || "No description"}
                   </p>
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                     <button
-                      onClick={() => startEditing(task.id, title, description)}
+                      onClick={() => startEditing(task.id, title ?? "", description ?? "")}
                       style={{
                         backgroundColor: "#1e90ff",
                         color: "#fff",
