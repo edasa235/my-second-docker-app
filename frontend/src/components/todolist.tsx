@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useTasks } from "./usetasks";
-import type { TaskJobData, TaskDTO } from "../types/task";
-import {TaskForm} from "./taskform.tsx";
-import {EditForm} from "./editform.tsx";
-import {TaskItem} from "./taskitem.tsx";
+import "./todo.css";
+import {useState} from "react";
+import {useTasks} from "./usetasks";
+import type {TaskJobData, TaskDTO} from "../types/task";
+import {TaskForm} from "./taskform";
+import {EditForm} from "./editform";
+import {TaskItem} from "./taskitem";
 
 const hasBody = (task: TaskJobData): task is Extract<TaskJobData, { body: TaskDTO }> =>
   task.type === "create" || task.type === "update";
@@ -19,67 +20,59 @@ export const TodoList = () => {
   } = useTasks();
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const startEditing = (id: string) => setEditingId(id);
-  const cancelEditing = () => setEditingId(null);
+  const [whiteBg, setWhiteBg] = useState(false);
 
-  const handleEditSave = async (id: string, values: { title: string; description?: string }) => {
+  const handleEditSave = async (
+    id: string,
+    values: { title: string; description?: string }
+  ) => {
     await updateTaskHandler(id, values);
     setEditingId(null);
   };
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        maxWidth: "480px",
-        margin: "0 auto",
-        fontFamily: "system-ui, sans-serif",
-      }}
-    >
-      <h1
-        style={{
-          fontSize: "26px",
-          fontWeight: "700",
-          marginBottom: "20px",
-          textAlign: "center",
-        }}
-      >
-        📝 Task List
-      </h1>
+    <div className={`todo-container ${whiteBg ? "white" : "gray"}`}>
+      <div className="theme-btn-wrapper">
+        <button className="theme-btn" onClick={() => setWhiteBg((prev) => !prev)}>
+          {whiteBg ? "Gray Background" : "White Background"}
+        </button>
+      </div>
 
-      {/* ✅ Add New Task Form */}
-      <TaskForm createTaskHandler={createTaskHandler} loading={loading} />
+      <h1 className="todo-title">📝 Task List</h1>
 
-      {loading && <p style={{ textAlign: "center", color: "#555" }}>Loading tasks...</p>}
-      {error && <p style={{ textAlign: "center", color: "red" }}>{error}</p>}
+      {/* Create new task */}
+      <div className="create-box">
+        <h2 className="create-title">➕ Opprett ny task</h2>
+        <TaskForm createTaskHandler={createTaskHandler} loading={loading}/>
+      </div>
 
-      {/* ✅ Task List */}
-      <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "14px" }}>
-        {tasks.filter(hasBody).map((task) => {
-          const { id, body } = task;
-          const isEditing = editingId === id;
+      {loading && <p className="text-center text-muted">Loading tasks...</p>}
+      {error && <p className="text-center text-error">{error}</p>}
 
-          return isEditing ? (
-            <EditForm
-              key={id}
-              initialValues={{
-                title: body.title ?? "",
-                description: body.description ?? "",
-              }}
-              onSave={(values) => handleEditSave(id, values)}
-              onCancel={cancelEditing}
-            />
-          ) : (
-            <TaskItem
-              key={task.id}
-              task={task}
-              editingId={editingId}
-              setEditingId={setEditingId}
-              updateTaskHandler={updateTaskHandler}
-              deleteTaskHandler={deleteTaskHandler}
-            />
-          );
-        })}
+      {/* Task list */}
+      <ul className="task-list">
+        {tasks.filter(hasBody).map((task) => (
+          <li key={task.id}>
+            {editingId === task.id ? (
+              <EditForm
+                initialValues={{
+                  title: task.body.title ?? "",
+                  description: task.body.description ?? "",
+                }}
+                onSave={(values) => handleEditSave(task.id, values)}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <TaskItem
+                task={task}
+                editingId={editingId}
+                setEditingId={setEditingId}
+                updateTaskHandler={updateTaskHandler}
+                deleteTaskHandler={deleteTaskHandler}
+              />
+            )}
+          </li>
+        ))}
       </ul>
     </div>
   );
