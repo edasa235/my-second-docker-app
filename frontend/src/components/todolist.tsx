@@ -1,10 +1,10 @@
 import "./todo.css";
-import { useState } from "react";
-import { useTasks } from "./usetasks";
-import type { TaskJobData, TaskDTO } from "../types/task";
-import { TaskForm } from "./taskform";
-import { EditForm } from "./editform";
-import { TaskItem } from "./taskitem";
+import {useState} from "react";
+import {useTasks} from "./usetasks";
+import type {TaskJobData, TaskDTO} from "../types/task";
+import {TaskForm} from "./taskform";
+import {EditForm} from "./editform";
+import {TaskItem} from "./taskitem";
 
 const hasBody = (task: TaskJobData): task is Extract<TaskJobData, { body: TaskDTO }> =>
   task.type === "create" || task.type === "update";
@@ -43,7 +43,7 @@ export const TodoList = () => {
       {/* Create new task */}
       <div className="create-box">
         <h2 className="create-title">➕ Opprett ny task</h2>
-        <TaskForm createTaskHandler={createTaskHandler} loading={loading} />
+        <TaskForm createTaskHandler={createTaskHandler} loading={loading}/>
       </div>
 
       {loading && <p className="text-center text-muted">Loading tasks...</p>}
@@ -51,28 +51,28 @@ export const TodoList = () => {
 
       {/* Task list */}
       <ul className="task-list">
-        {tasks.filter(hasBody).map((task) =>
-          editingId === task.id ? (
-            <EditForm
-              key={task.id}
-              initialValues={{
-                title: task.body.title ?? "",
-                description: task.body.description ?? "",
-              }}
-              onSave={(values) => handleEditSave(task.id, values)}
-              onCancel={() => setEditingId(null)}
-            />
-          ) : (
-            <TaskItem
-              key={task.id}
-              task={task}
-              editingId={editingId}
-              setEditingId={setEditingId}
-              updateTaskHandler={updateTaskHandler}
-              deleteTaskHandler={deleteTaskHandler}
-            />
-          )
-        )}
+        {tasks.filter(hasBody).map((task) => (
+          <li key={task.id}>
+            {editingId === task.id ? (
+              <EditForm
+                initialValues={{
+                  title: task.body.title ?? "",
+                  description: task.body.description ?? "",
+                }}
+                onSave={(values) => handleEditSave(task.id, values)}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <TaskItem
+                task={task}
+                editingId={editingId}
+                setEditingId={setEditingId}
+                updateTaskHandler={updateTaskHandler}
+                deleteTaskHandler={deleteTaskHandler}
+              />
+            )}
+          </li>
+        ))}
       </ul>
     </div>
   );
