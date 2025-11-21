@@ -19,6 +19,16 @@ export default class TaskController {
     const job = await tasksQueue.add('update', jobData);
     return { message: 'Task update queued', jobId: job.id };
   }
+  @Put('status/:id')
+  async updateTaskStatus(
+    @Param('id') id: string,
+    @Body() body: { status: 'todo' | 'inprogress' | 'done' }
+  ) {
+    const jobData: TaskJobData = { type: 'update', id, body };
+    const job = await tasksQueue.add('update', jobData);
+    return { message: 'Task status update queued', jobId: job.id };
+  }
+
 
   @Delete('/:id')
   async deleteTask(@Param('id') id: string) {

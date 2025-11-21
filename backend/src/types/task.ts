@@ -2,6 +2,8 @@
 export interface TaskDTO {
   title: string;
   description?: string;
+  status?: "todo" | "inprogress" | "done";
+
 }
 export type TaskJobData =
   | { type: 'create'; body: TaskDTO }
