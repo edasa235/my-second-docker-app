@@ -21,6 +21,11 @@ export default async function taskJob() {
           const updated = await repository.update(job.data.id!, job.data.body!);
           console.log('[Listener] Task updated:', updated);
           break;
+          case 'update-status':
+          console.log('[Listener] Processing update-status-task...');
+          const statusUpdated = await repository.updatestatus(job.data.id!, (job.data.body as any).status);
+          console.log('[Listener] Task status updated:', statusUpdated);
+          break;
         case 'delete':
           console.log('[Listener] Processing delete-task...');
           const deleted = await repository.delete(job.data.id!);

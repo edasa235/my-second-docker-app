@@ -1,9 +1,19 @@
 export interface TaskDTO {
-  id?: string;
+  id: string;
   title: string;
   description?: string;
+  status: 'todo' | 'inprogress' | 'done';
 }
+
 export type TaskJobData =
-  | { type: 'create'; id: string; body: TaskDTO }
-  | { type: 'update'; id: string; body: TaskDTO }
+  | { type: 'create'; body: TaskDTO }
+  | { type: 'update'; id: string; body: Partial<TaskDTO> }
   | { type: 'delete'; id: string };
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: 'todo' | 'inprogress' | 'done';
+}
+

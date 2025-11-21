@@ -12,7 +12,15 @@ export class TaskRepository {
     );
     return result.rows[0];
   }
-
+async updatestatus(id: string, status: 'todo' | 'inprogress' | 'done') {
+    const result = await postgres.query(
+      `UPDATE tasks SET status = $2,
+                         updated_at = NOW()
+       WHERE id = $1 RETURNING *`,
+      [id, status]
+    );
+    return result.rows[0];
+  }
   async update(id: string, data: Partial<CreateTaskDTO>) {
     const result = await postgres.query(
       `UPDATE tasks SET title = COALESCE($2, title),

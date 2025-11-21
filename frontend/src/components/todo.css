@@ -5,15 +5,59 @@
     margin: 0 auto;
     font-family: system-ui, sans-serif;
     min-height: 100vh;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.todo-container.white {
+/* Light Mode */
+.todo-container.light {
+    background-color: #f5f5f5;
+    color: #222;
+}
+
+.todo-container.light .todo-title {
+    color: #222;
+}
+
+.todo-container.light .create-box {
     background-color: #ffffff;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-.todo-container.gray {
-    background-color: #f0f0f0;
+.todo-container.light .create-title {
+    color: #222;
+}
+
+.todo-container.light .text-muted {
+    color: #555;
+}
+
+/* Dark Mode */
+.todo-container.dark {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.todo-container.dark .todo-title {
+    color: #e0e0e0;
+}
+
+.todo-container.dark .create-box {
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.todo-container.dark .create-title {
+    color: #e0e0e0;
+}
+
+.todo-container.dark .text-muted {
+    color: #aaa;
+}
+
+.todo-container.dark .text-error {
+    color: #ff6b6b;
 }
 
 /* Header */
@@ -22,7 +66,7 @@
     font-weight: 700;
     margin-bottom: 20px;
     text-align: center;
-    color: #222;
+    transition: color 0.3s;
 }
 
 /* Theme button container */
@@ -40,16 +84,19 @@
     color: white;
     cursor: pointer;
     font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.theme-btn:hover {
+    background-color: #1873cc;
 }
 
 /* Create Task Box */
 .create-box {
     padding: 16px;
     border-radius: 10px;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 28px;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .create-title {
@@ -57,6 +104,7 @@
     margin-bottom: 14px;
     font-size: 18px;
     font-weight: 600;
+    transition: color 0.3s;
 }
 
 /* Task List */
@@ -75,8 +123,23 @@
 
 .text-error {
     color: red;
+    transition: color 0.3s;
 }
 
 .text-muted {
-    color: #555;
+    transition: color 0.3s;
+}
+.kanban-column.drag-active {
+     transition: background-color 0.2s ease;
+ }
+.kanban-column.drag-over-column {
+    background-color: #dbeafe; /* Light blue highlight on drop target */
+    border: 2px dashed #3b82f6; /* Blue dashed border */
+}
+
+li.dragging {
+    opacity: 0.5;
+    border: 1px solid #3b82f6;
+    background-color: #e0e7ff;
+    cursor: grabbing;
 }
